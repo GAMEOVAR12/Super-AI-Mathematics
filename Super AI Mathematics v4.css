@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate AI Mathematics Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #ff9a9e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            animation: gradientShift 10s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #ff9a9e 100%); }
+            50% { background: linear-gradient(135deg, #ff9a9e 0%, #667eea 50%, #764ba2 100%); }
+        }
+
+        .calculator {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(25px);
+            border-radius: 30px;
+            padding: 35px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            max-width: 650px;
+            width: 100%;
+            animation: slideIn 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calculator::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .title {
+            color: white;
+            font-size: 2.5em;
+            font-weight: 800;
+            margin-bottom: 8px;
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            background: linear-gradient(45deg, #fff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1em;
+            font-weight: 400;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .display {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        }
+
+        .input {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.4em;
+            font-weight: 600;
+            outline: none;
+            width: 100%;
+            text-align: left;
+            margin-bottom: 15px;
+            resize: none;
+            min-height: 50px;
+            font-family: 'Courier New', monospace;
+            line-height: 1.4;
+        }
+
+        .input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+        }
+
+        .result {
+            color: #4ECDC4;
+            font-size: 1.3em;
+            text-align: right;
+            min-height: 30px;
+            word-wrap: break-word;
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(78, 205, 196, 0.3);
+            font-family: 'Courier New', monospace;
+        }
+
+        .mode-toggle {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .mode-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            padding: 12px 8px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            font-weight: 700;
+            font-size: 0.9em;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.6s ease;
+        }
+
+        .mode-btn:hover::before {
+            width: 200px;
+            height: 200px;
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .function-panels {
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .function-panel {
+            display: none;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .function-panel.show {
+            display: grid;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            border-radius: 18px;
+            color: white;
+            font-size: 1.1em;
+            font-weight: 700;
+            height: 55px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .btn:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        .btn.operator {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.4), rgba(238, 90, 36, 0.4));
+        }
+
+        .btn.operator:hover {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.6), rgba(238, 90, 36, 0.6));
+        }
+
+        .btn.function {
+            background: linear-gradient(135deg, rgba(74, 144, 226, 0.4), rgba(52, 152, 219, 0.4));
+            font-size: 0.9em;
+        }
+
+        .btn.function:hover {
+            background: linear-gradient(135deg, rgba(74, 144, 226, 0.6), rgba(52, 152, 219, 0.6));
+        }
+
+        .btn.geometry {
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.4), rgba(39, 174, 96, 0.4));
+            font-size: 0.85em;
+        }
+
+        .btn.geometry:hover {
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.6), rgba(39, 174, 96, 0.6));
+        }
+
+        .btn.probability {
+            background: linear-gradient(135deg, rgba(155, 89, 182, 0.4), rgba(142, 68, 173, 0.4));
+            font-size: 0.85em;
+        }
+
+        .btn.probability:hover {
+            background: linear-gradient(135deg, rgba(155, 89, 182, 0.6), rgba(142, 68, 173, 0.6));
+        }
+
+        .btn.algebra {
+            background: linear-gradient(135deg, rgba(241, 196, 15, 0.4), rgba(230, 126, 34, 0.4));
+            font-size: 0.85em;
+        }
+
+        .btn.algebra:hover {
+            background: linear-gradient(135deg, rgba(241, 196, 15, 0.6), rgba(230, 126, 34, 0.6));
+        }
+
+        .btn.equals {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24, #ff9ff3);
+            grid-column: span 2;
+            font-size: 1.4em;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn.equals:hover {
+            background: linear-gradient(135deg, #ee5a24, #ff6b6b, #f368e0);
+            box-shadow: 0 12px 35px rgba(255, 107, 107, 0.6);
+        }
+
+        .btn.clear {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.4), rgba(255, 152, 0, 0.4));
+        }
+
+        .btn.clear:hover {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.6), rgba(255, 152, 0, 0.6));
+        }
+
+        .history {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 25px;
+            max-height: 180px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .history-title {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1em;
+            margin-bottom: 15px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .history-item {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85em;
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', monospace;
+            border: 1px solid transparent;
+        }
+
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            transform: translateX(5px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .error {
+            color: #ff6b6b !important;
+            text-shadow: 0 2px 10px rgba(255, 107, 107, 0.4) !important;
+        }
+
+        .help-panel {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 20px;
+            font-size: 0.85em;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.5;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .help-panel h4 {
+            color: white;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .help-panel ul {
+            margin-left: 20px;
+        }
+
+        .help-panel li {
+            margin-bottom: 6px;
+            transition: color 0.3s ease;
+        }
+
+        .help-panel li:hover {
+            color: #4ECDC4;
+        }
+
+        .angle-toggle {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+
+        .angle-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            padding: 6px 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .angle-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.2));
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.4));
+        }
+
+        @media (max-width: 768px) {
+            .calculator {
+                padding: 25px;
+                margin: 10px;
+            }
+            
+            .mode-toggle {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .function-panel {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .buttons {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .title {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="header">
+            <h1 class="title">🧠 Ultimate AI Math Calculator</h1>
+            <p class="subtitle">Advanced Mathematical Computing & Problem Solving</p>
+        </div>
+
+        <div class="status-bar">
+            <span id="angleMode">Angle: Degrees</span>
+            <span id="currentMode">Mode: Basic</span>
+            <span id="calculations">Calculations: 0</span>
+        </div>
+
+        <div class="mode-toggle">
+            <button class="mode-btn active" onclick="setMode('basic')">🔢 Basic</button>
+            <button class="mode-btn" onclick="setMode('scientific')">🔬 Scientific</button>
+            <button class="mode-btn" onclick="setMode('geometry')">📐 Geometry</button>
+            <button class="mode-btn" onclick="setMode('statistics')">📊 Statistics</button>
+            <button class="mode-btn" onclick="setMode('algebra')">🔤 Algebra</button>
+        </div>
+
+        <div class="angle-toggle">
+            <button class="angle-btn active" onclick="toggleAngleMode('degrees')">DEG</button>
+            <button class="angle-btn" onclick="toggleAngleMode('radians')">RAD</button>
+        </div>
+
+        <div class="display">
+            <textarea class="input" id="display" placeholder="Ask me any mathematical question or enter calculations..." onkeydown="handleKeyPress(event)" rows="2"></textarea>
+            <div class="result" id="result"></div>
+        </div>
+
+        <div class="function-panels">
+            <!-- Scientific Panel -->
+            <div class="function-panel" id="scientificPanel">
+                <button class="btn function" onclick="addFunction('sin(')">sin</button>
+                <button class="btn function" onclick="addFunction('cos(')">cos</button>
+                <button class="btn function" onclick="addFunction('tan(')">tan</button>
+                <button class="btn function" onclick="addFunction('asin(')">asin</button>
+                <button class="btn function" onclick="addFunction('acos(')">acos</button>
+                <button class="btn function" onclick="addFunction('atan(')">atan</button>
+                <button class="btn function" onclick="addFunction('sinh(')">sinh</button>
+                <button class="btn function" onclick="addFunction('cosh(')">cosh</button>
+                <button class="btn function" onclick="addFunction('log(')">log</button>
+                <button class="btn function" onclick="addFunction('ln(')">ln</button>
+                <button class="btn function" onclick="addFunction('exp(')">exp</button>
+                <button class="btn function" onclick="addFunction('sqrt(')">√</button>
+                <button class="btn function" onclick="addFunction('cbrt(')">∛</button>
+                <button class="btn function" onclick="addFunction('pow(')">x^y</button>
+                <button class="btn function" onclick="addFunction('factorial(')">n!</button>
+                <button class="btn function" onclick="addFunction('abs(')">|x|</button>
+            </div>
+
+            <!-- Geometry Panel -->
+            <div class="function-panel" id="geometryPanel">
+                <button class="btn geometry" onclick="addFunction('circleArea(')">Circle A</button>
+                <button class="btn geometry" onclick="addFunction('circleCircumference(')">Circle C</button>
+                <button class="btn geometry" onclick="addFunction('triangleArea(')">Triangle A</button>
+                <button class="btn geometry" onclick="addFunction('rectangleArea(')">Rectangle A</button>
+                <button class="btn geometry" onclick="addFunction('sphereVolume(')">Sphere V</button>
+                <button class="btn geometry" onclick="addFunction('cylinderVolume(')">Cylinder V</button>
+                <button class="btn geometry" onclick="addFunction('coneVolume(')">Cone V</button>
+                <button class="btn geometry" onclick="addFunction('pyramidVolume(')">Pyramid V</button>
+                <button class="btn geometry" onclick="addFunction('distance2D(')">Distance 2D</button>
+                <button class="btn geometry" onclick="addFunction('distance3D(')">Distance 3D</button>
+                <button class="btn geometry" onclick="addFunction('slope(')">Slope</button>
+                <button class="btn geometry" onclick="addFunction('polygonArea(')">Polygon A</button>
+                <button class="btn geometry" onclick="addFunction('ellipseArea(')">Ellipse A</button>
+                <button class="btn geometry" onclick="addFunction('surfaceArea(')">Surface A</button>
+                <button class="btn geometry" onclick="addFunction('pythagorean(')">Pythagorean</button>
+                <button class="btn geometry" onclick="addFunction('lawOfCosines(')">Law Cosines</button>
+            </div>
+
+            <!-- Statistics Panel -->
+            <div class="function-panel" id="statisticsPanel">
+                <button class="btn probability" onclick="addFunction('mean(')">Mean</button>
+                <button class="btn probability" onclick="addFunction('median(')">Median</button>
+                <button class="btn probability" onclick="addFunction('mode(')">Mode</button>
+                <button class="btn probability" onclick="addFunction('variance(')">Variance</button>
+                <button class="btn probability" onclick="addFunction('stdDev(')">Std Dev</button>
+                <button class="btn probability" onclick="addFunction('range(')">Range</button>
+                <button class="btn probability" onclick="addFunction('quartile(')">Quartile</button>
+                <button class="btn probability" onclick="addFunction('iqr(')">IQR</button>
+                <button class="btn probability" onclick="addFunction('permutation(')">nPr</button>
+                <button class="btn probability" onclick="addFunction('combination(')">nCr</button>
+                <button class="btn probability" onclick="addFunction('binomial(')">Binomial</button>
+                <button class="btn probability" onclick="addFunction('poisson(')">Poisson</button>
+                <button class="btn probability" onclick="addFunction('normal(')">Normal</button>
+                <button class="btn probability" onclick="addFunction('correlation(')">Correlation</button>
+                <button class="btn probability" onclick="addFunction('regression(')">Regression</button>
+                <button class="btn probability" onclick="addFunction('zscore(')">Z-Score</button>
+            </div>
+
+            <!-- Algebra Panel -->
+            <div class="function-panel" id="algebraPanel">
+                <button class="btn algebra" onclick="addFunction('solve(')">Solve Eq</button>
+                <button class="btn algebra" onclick="addFunction('factor(')">Factor</button>
+                <button class="btn algebra" onclick="addFunction('expand(')">Expand</button>
+                <button class="btn algebra" onclick="addFunction('simplify(')">Simplify</button>
+                <button class="btn algebra" onclick="addFunction('derivative(')">d/dx</button>
+                <button class="btn algebra" onclick="addFunction('integral(')">∫dx</button>
+                <button class="btn algebra" onclick="addFunction('limit(')">Limit</button>
+                <button class="btn algebra" onclick="addFunction('series(')">Series</button>
+                <button class="btn algebra" onclick="addFunction('matrix(')">Matrix</button>
+                <button class="btn algebra" onclick="addFunction('determinant(')">Det</button>
+                <button class="btn algebra" onclick="addFunction('inverse(')">Inverse</button>
+                <button class="btn algebra" onclick="addFunction('eigenvalue(')">Eigenval</button>
+                <button class="btn algebra" onclick="addFunction('roots(')">Roots</button>
+                <button class="btn algebra" onclick="addFunction('sequence(')">Sequence</button>
+                <button class="btn algebra" onclick="addFunction('logarithm(')">Log Base</button>
+                <button class="btn algebra" onclick="addFunction('complexNumber(')">Complex</button>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="btn clear" onclick="clearAll()">AC</button>
+            <button class="btn clear" onclick="clearEntry()">CE</button>
+            <button class="btn" onclick="deleteLast()">⌫</button>
+            <button class="btn operator" onclick="addToDisplay('/')">/</button>
+            <button class="btn function" onclick="addToDisplay('pi')" title="π">π</button>
+
+            <button class="btn" onclick="addToDisplay('7')">7</button>
+            <button class="btn" onclick="addToDisplay('8')">8</button>
+            <button class="btn" onclick="addToDisplay('9')">9</button>
+            <button class="btn operator" onclick="addToDisplay('*')">×</button>
+            <button class="btn function" onclick="addToDisplay('e')" title="Euler's number">e</button>
+
+            <button class="btn" onclick="addToDisplay('4')">4</button>
+            <button class="btn" onclick="addToDisplay('5')">5</button>
+            <button class="btn" onclick="addToDisplay('6')">6</button>
+            <button class="btn operator" onclick="addToDisplay('-')">-</button>
+            <button class="btn" onclick="addToDisplay('(')">(</button>
+
+            <button class="btn" onclick="addToDisplay('1')">1</button>
+            <button class="btn" onclick="addToDisplay('2')">2</button>
+            <button class="btn" onclick="addToDisplay('3')">3</button>
+            <button class="btn operator" onclick="addToDisplay('+')">+</button>
+            <button class="btn" onclick="addToDisplay(')')">)</button>
+
+            <button class="btn" onclick="addToDisplay('0')">0</button>
+            <button class="btn" onclick="addToDisplay('.')">.</button>
+            <button class="btn operator" onclick="addToDisplay('%')">%</button>
+            <button class="btn equals" onclick="calculate()">=</button>
+        </div>
+
+        <div class="history">
+            <div class="history-title">
+                <span>📜</span>
+                <span>Calculation History</span>
+                <button onclick="clearHistory()" style="margin-left: auto; background: rgba(255,255,255,0.1); border: none; color: white; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 0.7em;">Clear</button>
+            </div>
+            <div id="historyList"></div>
+        </div>
+
+        <div class="help-panel">
+            <h4>🤖 AI Natural Language Examples:</h4>
+            <ul>
+                <li><strong>Basic:</strong> "what is 25% of 150", "square root of 144"</li>
+                <li><strong>Geometry:</strong> "area of circle radius 5", "volume of sphere diameter 10"</li>
+                <li><strong>Statistics:</strong> "mean of 10,20,30,40,50", "standard deviation of [1,2,3,4,5]"</li>
+                <li><strong>Probability:</strong> "10 choose 3", "probability of getting heads 3 times in 5 flips"</li>
+                <li><strong>Algebra:</strong> "solve x^2 + 5x + 6 = 0", "factor x^2 - 9", "derivative of x^3"</li>
+                <li><strong>Advanced:</strong> "integral of sin(x)", "limit of (sin(x))/x as x approaches 0"</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'basic';
+        let history = [];
+        let angleMode = 'degrees';
+        let calculationCount = 0;
+
+        // Mathematical constants
+        const mathConstants = {
+            pi: Math.PI,
+            e: Math.E,
+            phi: (1 + Math.sqrt(5)) / 2,
+            gamma: 0.5772156649015329,
+            sqrt2: Math.sqrt(2),
+            sqrt3: Math.sqrt(3),
+            ln2: Math.log(2),
+            ln10: Math.log(10)
+        };
+
+        // Comprehensive mathematical functions
+        const mathFunctions = {
+            // Basic arithmetic
+            add: (a, b) => a + b,
+            subtract: (a, b) => a - b,
+            multiply: (a, b) => a * b,
+            divide: (a, b) => b !== 0 ? a / b : Infinity,
+
+            // Trigonometric functions
+            sin: (x) => Math.sin(angleMode === 'degrees' ? x * Math.PI / 180 : x),
+            cos: (x) => Math.cos(angleMode === 'degrees' ? x * Math.PI / 180 : x),
+            tan: (x) => Math.tan(angleMode === 'degrees' ? x * Math.PI / 180 : x),
+            sec: (x) => 1 / Math.cos(angleMode === 'degrees' ? x * Math.PI / 180 : x),
+            csc: (x) => 1 / Math.sin(angleMode === 'degrees' ? x * Math.PI / 180 : x),
+            cot: (x) => 1 /
